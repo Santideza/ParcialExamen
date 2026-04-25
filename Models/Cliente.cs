@@ -8,6 +8,9 @@ public class Cliente
     
     [Required]
     public required string UsuarioId { get; set; }
+
+    [Required]
+    public string Nombre { get; set; } = string.Empty;
     
     [Range(0.01, double.MaxValue)]
     public decimal IngresosMensuales { get; set; }

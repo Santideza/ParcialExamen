@@ -5,8 +5,17 @@
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+    var email = User.Identity?.Name ?? "";
+    var nombre = email switch
+    {
+        "cliente1@example.com" => "Pedro",
+        "cliente2@example.com" => "Maria",
+        "analista@example.com" => "Analista",
+        _ => email
+    };
+
     <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Administrar">Hola @User.Identity?.Name!</a>
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Administrar">Buenos dias @nombre</a>
     </li>
     <li class="nav-item">
         <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

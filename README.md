@@ -23,9 +23,18 @@ Aplicación ASP.NET Core para gestión de solicitudes de crédito.
 ## Instalación
 
 1. Clonar el repositorio
-2. Ejecutar `dotnet restore`
-3. Ejecutar `dotnet ef database update`
-4. Ejecutar `dotnet run`
+2. Configurar base de datos
+3. Ejecutar el proyecto
+
+##Roles sistema
+
+1.Cliente (Usuario normal)
+- Registra solicitudes
+- Consulta sus solicitudes
+2.Analista
+- Accede al panel /Analista
+- Aprueba o rechaza solicitudes
+
 
 ## Validaciones
 
@@ -48,3 +57,22 @@ Analista:
 - Email: analista@example.com
   Password: Password123!
   Rol: Analista
+
+##Pruebas realizadas
+
+- Registro de usuario 
+- Login 
+- Creación de solicitud 
+- Validaciones de negocio 
+- Panel de analista 
+- Cache Redis 
+- Sesión Redis 
+
+##Flujo de trabajo con Git
+
+- feature/bootstrap-dominio
+- feature/catalogo-solicitudes
+- feature/solicitudes
+- feature/sesion-redis
+- feature/panel-analista
+- deploy/render
