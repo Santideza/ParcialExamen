@@ -5,7 +5,10 @@
 }
 
 <div class="container mt-4">
-    <h1 class="mb-4">Mis solicitudes</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Mis solicitudes</h1>
+        <a asp-controller="Solicitudes" asp-action="Crear" class="btn btn-primary">Nueva solicitud</a>
+    </div>
 
     <form method="get" asp-controller="Solicitudes" asp-action="Index" class="card mb-4">
         <div class="card-header fw-semibold">Filtros</div>

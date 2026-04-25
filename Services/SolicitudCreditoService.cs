@@ -50,4 +50,30 @@ public class SolicitudCreditoService
             .Include(s => s.Cliente)
             .FirstOrDefaultAsync(s => s.Id == id && s.Cliente!.UsuarioId == usuarioId);
     }
+
+    public async Task<Cliente?> ObtenerClienteActivoPorUsuarioAsync(string usuarioId)
+    {
+        return await _context.Clientes
+            .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId && c.Activo);
+    }
+
+    public async Task<bool> TieneSolicitudPendienteAsync(int clienteId)
+    {
+        return await _context.SolicitudesCredito
+            .AnyAsync(s => s.ClienteId == clienteId && s.Estado == EstadoSolicitud.Pendiente);
+    }
+
+    public async Task CrearSolicitudPendienteAsync(int clienteId, decimal montoSolicitado)
+    {
+        var solicitud = new SolicitudCredito
+        {
+            ClienteId = clienteId,
+            MontoSolicitado = montoSolicitado,
+            FechaSolicitud = DateTime.Now,
+            Estado = EstadoSolicitud.Pendiente
+        };
+
+        _context.SolicitudesCredito.Add(solicitud);
+        await _context.SaveChangesAsync();
+    }
 }

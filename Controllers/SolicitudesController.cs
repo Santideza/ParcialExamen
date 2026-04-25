@@ -30,6 +30,48 @@ public class SolicitudesController(SolicitudCreditoService service, UserManager<
         return View(filtro);
     }
 
+    public IActionResult Crear()
+    {
+        return View(new RegistroSolicitudViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Crear(RegistroSolicitudViewModel model)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var cliente = await service.ObtenerClienteActivoPorUsuarioAsync(user.Id);
+        if (cliente == null)
+        {
+            ModelState.AddModelError(string.Empty, "El cliente no existe o no esta activo.");
+            return View(model);
+        }
+
+        if (await service.TieneSolicitudPendienteAsync(cliente.Id))
+        {
+            ModelState.AddModelError(string.Empty, "Ya tienes una solicitud pendiente.");
+            return View(model);
+        }
+
+        if (model.MontoSolicitado > cliente.IngresosMensuales * 10)
+        {
+            ModelState.AddModelError(nameof(model.MontoSolicitado), "El monto no puede superar 10 veces tus ingresos mensuales.");
+            return View(model);
+        }
+
+        await service.CrearSolicitudPendienteAsync(cliente.Id, model.MontoSolicitado);
+        TempData["SuccessMessage"] = "Solicitud registrada correctamente.";
+
+        return RedirectToAction(nameof(Crear));
+    }
+
     public async Task<IActionResult> Detalle(int id)
     {
         var user = await userManager.GetUserAsync(User);

@@ -279,4 +279,4 @@ C:\Users\Santiago\Desktop\TrabajosGeneral\ParcialExamen\obj\Debug\net10.0\refint
 C:\Users\Santiago\Desktop\TrabajosGeneral\ParcialExamen\obj\Debug\net10.0\ParcialExamen.pdb
 C:\Users\Santiago\Desktop\TrabajosGeneral\ParcialExamen\obj\Debug\net10.0\ParcialExamen.genruntimeconfig.cache
 C:\Users\Santiago\Desktop\TrabajosGeneral\ParcialExamen\obj\Debug\net10.0\ref\ParcialExamen.dll
-C:\Users\Santiago\Desktop\TrabajosGeneral\ParcialExamen\obj\Debug\net10.0\compressed\n4c0me2nsq-{0}-mjpd7wyvct-mjpd7wyvct.gz
+C:\Users\Santiago\Desktop\TrabajosGeneral\ParcialExamen\obj\Debug\net10.0\compressed\n4c0me2nsq-{0}-hy21ym8r2r-hy21ym8r2r.gz

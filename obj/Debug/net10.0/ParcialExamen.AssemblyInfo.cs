@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ParcialExamen")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac478a9307a38f552b84d5fa474cd7629424df33")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c646c1e589aef0feaef2bdcb6dfa5bfd892fa3b")]
 [assembly: System.Reflection.AssemblyProductAttribute("ParcialExamen")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ParcialExamen")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
