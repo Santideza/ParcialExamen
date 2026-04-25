@@ -76,3 +76,32 @@ Analista:
 - feature/sesion-redis
 - feature/panel-analista
 - deploy/render
+
+## Deploy en Render
+
+1. Subir el proyecto a GitHub.
+2. En Render, crear un nuevo Web Service y conectar el repositorio.
+3. Configurar:
+   - Runtime: Docker.
+   - Dockerfile Path: `./Dockerfile`
+4. Crear un Disk persistente si se usara SQLite en produccion:
+   - Mount Path: `/var/data`
+   - Variable `ConnectionStrings__DefaultConnection`: `Data Source=/var/data/app.db;Cache=Shared`
+5. Agregar variables de entorno:
+   - `ASPNETCORE_ENVIRONMENT`: `Production`
+   - `ASPNETCORE_URLS`: `http://0.0.0.0:${PORT}`
+   - `ConnectionStrings__DefaultConnection`: `Data Source=/var/data/app.db;Cache=Shared`
+   - `Redis__ConnectionString`: `redis://default:jmcxwcEVHpVBB5uj1DeLFYDT2pglbYMH@redis-18554.c16.us-east-1-2.ec2.cloud.redislabs.com:18554`
+6. Hacer Deploy.
+7. Verificar online:
+   - Login con `cliente1@example.com` / `Password123!`.
+   - Registrar solicitud.
+   - Probar validacion de solicitud pendiente.
+   - Probar monto mayor a 10 veces ingresos.
+   - Entrar con `analista@example.com` / `Password123!`.
+   - Abrir `/Analista`.
+   - Aprobar una solicitud valida.
+   - Rechazar una solicitud con motivo.
+   - Confirmar que clientes no puedan entrar a `/Analista`.
+   - Abrir detalle de solicitud y revisar que la sesion Redis funcione sin error.
+   - Recargar listado de solicitudes para confirmar que el cache Redis responde.
