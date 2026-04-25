@@ -11,6 +11,16 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult MisSolicitudes()
+    {
+        return RedirectToAction("Index", "Solicitudes");
+    }
+
+    public IActionResult Detalle(int id)
+    {
+        return RedirectToAction("Detalle", "Solicitudes", new { id });
+    }
+
     public IActionResult Privacy()
     {
         return View();

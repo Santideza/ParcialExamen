@@ -1,26 +1,53 @@
+using Microsoft.EntityFrameworkCore;
 using ParcialExamen.Data;
 using ParcialExamen.Models;
 
 namespace ParcialExamen.Services;
 
-public class SolicitudCreditoService(ApplicationDbContext context)
+public class SolicitudCreditoService
 {
-    public async Task<(bool isValid, string? errorMessage)> ValidarSolicitudAsync(SolicitudCredito solicitud)
+    private readonly ApplicationDbContext _context;
+
+    public SolicitudCreditoService(ApplicationDbContext context)
     {
-        var cliente = await context.Clientes.FindAsync(solicitud.ClienteId);
-        if (cliente == null)
-            return (false, "Cliente no encontrado");
+        _context = context;
+    }
 
-        var solicitudPendiente = context.SolicitudesCredito
-            .Where(s => s.ClienteId == solicitud.ClienteId && s.Estado == EstadoSolicitud.Pendiente)
-            .FirstOrDefault();
+    public async Task<List<SolicitudCredito>> ObtenerPorUsuarioAsync(
+        string usuarioId,
+        EstadoSolicitud? estado,
+        decimal? montoMin,
+        decimal? montoMax,
+        DateTime? fechaInicio,
+        DateTime? fechaFin)
+    {
+        var query = _context.SolicitudesCredito
+            .Include(s => s.Cliente)
+            .Where(s => s.Cliente!.UsuarioId == usuarioId)
+            .AsQueryable();
 
-        if (solicitudPendiente != null && solicitudPendiente.Id != solicitud.Id)
-            return (false, "El cliente ya tiene una solicitud en estado Pendiente");
+        if (estado.HasValue)
+            query = query.Where(s => s.Estado == estado.Value);
 
-        if (solicitud.MontoSolicitado > cliente.IngresosMensuales * 5)
-            return (false, "El monto solicitado no puede ser mayor a 5 veces los ingresos mensuales");
+        if (montoMin.HasValue)
+            query = query.Where(s => s.MontoSolicitado >= montoMin.Value);
 
-        return (true, null);
+        if (montoMax.HasValue)
+            query = query.Where(s => s.MontoSolicitado <= montoMax.Value);
+
+        if (fechaInicio.HasValue)
+            query = query.Where(s => s.FechaSolicitud >= fechaInicio.Value);
+
+        if (fechaFin.HasValue)
+            query = query.Where(s => s.FechaSolicitud <= fechaFin.Value.AddDays(1).AddTicks(-1));
+
+        return await query.OrderByDescending(s => s.FechaSolicitud).ToListAsync();
+    }
+
+    public async Task<SolicitudCredito?> ObtenerPorIdYUsuarioAsync(int id, string usuarioId)
+    {
+        return await _context.SolicitudesCredito
+            .Include(s => s.Cliente)
+            .FirstOrDefaultAsync(s => s.Id == id && s.Cliente!.UsuarioId == usuarioId);
     }
 }
