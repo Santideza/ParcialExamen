@@ -14,6 +14,11 @@ Aplicación ASP.NET Core para gestión de solicitudes de crédito.
 
 - .NET 10.0
 - SQLite
+- Identity (autenticación y roles)
+- Redis (cache y sesiones)
+- Razor Views
+- GitHub (control de versiones)
+- Render.com (deploy)
 
 ## Instalación
 
@@ -31,8 +36,15 @@ Aplicación ASP.NET Core para gestión de solicitudes de crédito.
 
 ## Datos Iniciales
 
-- 2 clientes (cliente1@example.com, cliente2@example.com)
-- 1 usuario con rol Analista (analista@example.com)
-- 2 solicitudes (1 pendiente, 1 aprobada)
+- Usuario cliente:
+  Email: cliente1@example.com
+  Password: Password123!
 
-Contraseña inicial: Password123!
+- Otro cliente:
+  Email: cliente2@example.com
+  Password: Password123!
+
+Analista:
+- Email: analista@example.com
+  Password: Password123!
+  Rol: Analista
