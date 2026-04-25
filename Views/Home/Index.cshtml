@@ -1,8 +1,48 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="home-hero">
+    <div class="home-hero__content">
+        <span class="home-hero__eyebrow">Sistema de gestion</span>
+        <h1>Solicitudes de credito claras y ordenadas</h1>
+        <p>
+            Consulta tus solicitudes, revisa estados y accede al detalle de cada evaluacion desde un solo lugar.
+        </p>
+
+        <div class="home-hero__actions">
+            <a asp-controller="Solicitudes" asp-action="Index" class="btn btn-primary btn-lg">Ver mis solicitudes</a>
+            <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-secondary btn-lg">Privacidad</a>
+        </div>
+    </div>
+
+    <div class="home-summary" aria-label="Resumen del portal">
+        <div>
+            <strong>Pendiente</strong>
+            <span>Seguimiento de evaluacion</span>
+        </div>
+        <div>
+            <strong>Aprobado</strong>
+            <span>Solicitudes aceptadas</span>
+        </div>
+        <div>
+            <strong>Rechazado</strong>
+            <span>Historial disponible</span>
+        </div>
+    </div>
+</section>
+
+<section class="home-features">
+    <article>
+        <h2>Filtros rapidos</h2>
+        <p>Busca solicitudes por estado, rango de monto y fechas.</p>
+    </article>
+    <article>
+        <h2>Detalle completo</h2>
+        <p>Revisa fecha, monto solicitado, cliente y resultado de evaluacion.</p>
+    </article>
+    <article>
+        <h2>Acceso seguro</h2>
+        <p>La informacion se muestra segun el usuario autenticado.</p>
+    </article>
+</section>

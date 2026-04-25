@@ -1,0 +1,111 @@
+@model ParcialExamen.Models.FiltroSolicitudViewModel
+@{
+    ViewData["Title"] = "Mis Solicitudes";
+}
+
+<h2 class="mb-4">Mis Solicitudes</h2>
+
+<form method="get" asp-action="MisSolicitudes">
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">Filtros</div>
+        <div class="card-body">
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <label asp-for="Estado" class="form-label"></label>
+                    <select asp-for="Estado" class="form-select"
+                            asp-items="Html.GetEnumSelectList<ParcialExamen.Models.EstadoSolicitud>()">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="MontoMin" class="form-label"></label>
+                    <input asp-for="MontoMin" type="number" min="0" step="0.01" class="form-control" placeholder="0.00" />
+                    <span asp-validation-for="MontoMin" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="MontoMax" class="form-label"></label>
+                    <input asp-for="MontoMax" type="number" min="0" step="0.01" class="form-control" placeholder="0.00" />
+                    <span asp-validation-for="MontoMax" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="FechaInicio" class="form-label"></label>
+                    <input asp-for="FechaInicio" type="date" class="form-control" />
+                    <span asp-validation-for="FechaInicio" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="FechaFin" class="form-label"></label>
+                    <input asp-for="FechaFin" type="date" class="form-control" />
+                    <span asp-validation-for="FechaFin" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+            </div>
+
+            @* Errores de validación cruzada (montos y fechas) *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mt-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                </div>
+            }
+        </div>
+    </div>
+</form>
+
+@if (!Model.Resultados.Any())
+{
+    <div class="alert alert-info">No se encontraron solicitudes con los filtros aplicados.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th>Monto Solicitado</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.Resultados)
+                {
+                    <tr>
+                        <td>@s.Id</td>
+                        <td>@s.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                        <td>@s.MontoSolicitado.ToString("C2")</td>
+                        <td>
+                            @{
+                                var badge = s.Estado switch
+                                {
+                                    ParcialExamen.Models.EstadoSolicitud.Aprobado  => "bg-success",
+                                    ParcialExamen.Models.EstadoSolicitud.Rechazado => "bg-danger",
+                                    _                                               => "bg-warning text-dark"
+                                };
+                            }
+                            <span class="badge @badge">@s.Estado</span>
+                        </td>
+                        <td>
+                            <a asp-action="Detalle" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary">
+                                Ver detalle
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

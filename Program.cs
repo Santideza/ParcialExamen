@@ -58,47 +58,20 @@ using (var scope = app.Services.CreateScope())
         await roleManager.CreateAsync(new IdentityRole("Analista"));
     }
 
-    if (context.Clientes.Count() == 0)
+    var user1 = await EnsureUserAsync(context, userManager, "cliente1@example.com", "Password123!");
+    var user2 = await EnsureUserAsync(context, userManager, "cliente2@example.com", "Password123!");
+    var analista = await EnsureUserAsync(context, userManager, "analista@example.com", "Password123!");
+
+    if (!await userManager.IsInRoleAsync(analista, "Analista"))
     {
-        var user1 = await userManager.FindByEmailAsync("cliente1@example.com");
-        if (user1 == null)
-        {
-            user1 = new IdentityUser { UserName = "cliente1", Email = "cliente1@example.com", EmailConfirmed = true };
-            await userManager.CreateAsync(user1, "Password123!");
-        }
+        EnsureSucceeded(await userManager.AddToRoleAsync(analista, "Analista"), "asignar el rol Analista");
+    }
 
-        var user2 = await userManager.FindByEmailAsync("cliente2@example.com");
-        if (user2 == null)
-        {
-            user2 = new IdentityUser { UserName = "cliente2", Email = "cliente2@example.com", EmailConfirmed = true };
-            await userManager.CreateAsync(user2, "Password123!");
-        }
+    var cliente1 = await EnsureClienteAsync(context, user1, 5000);
+    var cliente2 = await EnsureClienteAsync(context, user2, 8000);
 
-        var analista = await userManager.FindByEmailAsync("analista@example.com");
-        if (analista == null)
-        {
-            analista = new IdentityUser { UserName = "analista", Email = "analista@example.com", EmailConfirmed = true };
-            await userManager.CreateAsync(analista, "Password123!");
-            await userManager.AddToRoleAsync(analista, "Analista");
-        }
-
-        var cliente1 = new ParcialExamen.Models.Cliente
-        {
-            UsuarioId = user1.Id,
-            IngresosMensuales = 5000,
-            Activo = true
-        };
-
-        var cliente2 = new ParcialExamen.Models.Cliente
-        {
-            UsuarioId = user2.Id,
-            IngresosMensuales = 8000,
-            Activo = true
-        };
-
-        context.Clientes.AddRange(cliente1, cliente2);
-        context.SaveChanges();
-
+    if (!context.SolicitudesCredito.Any())
+    {
         var solicitud1 = new ParcialExamen.Models.SolicitudCredito
         {
             ClienteId = cliente1.Id,
@@ -121,3 +94,143 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+static async Task<IdentityUser> EnsureUserAsync(
+    ApplicationDbContext context,
+    UserManager<IdentityUser> userManager,
+    string email,
+    string password)
+{
+    var normalizedEmail = userManager.NormalizeEmail(email);
+    var normalizedUserName = userManager.NormalizeName(email);
+    var matchingUsers = await context.Users
+        .Where(user => user.NormalizedEmail == normalizedEmail)
+        .OrderByDescending(user => user.NormalizedUserName == normalizedUserName)
+        .ThenBy(user => user.Id)
+        .ToListAsync();
+
+    var user = matchingUsers.FirstOrDefault();
+
+    if (user == null)
+    {
+        user = new IdentityUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true
+        };
+
+        EnsureSucceeded(await userManager.CreateAsync(user, password), $"crear el usuario {email}");
+        return user;
+    }
+
+    var changed = false;
+
+    if (user.UserName != email)
+    {
+        user.UserName = email;
+        user.NormalizedUserName = normalizedUserName;
+        changed = true;
+    }
+
+    if (user.Email != email)
+    {
+        user.Email = email;
+        user.NormalizedEmail = normalizedEmail;
+        changed = true;
+    }
+
+    if (!user.EmailConfirmed)
+    {
+        user.EmailConfirmed = true;
+        changed = true;
+    }
+
+    if (changed)
+    {
+        EnsureSucceeded(await userManager.UpdateAsync(user), $"actualizar el usuario {email}");
+    }
+
+    if (!await userManager.CheckPasswordAsync(user, password))
+    {
+        if (await userManager.HasPasswordAsync(user))
+        {
+            EnsureSucceeded(await userManager.RemovePasswordAsync(user), $"remover el password anterior de {email}");
+        }
+
+        EnsureSucceeded(await userManager.AddPasswordAsync(user, password), $"asignar el password de {email}");
+    }
+
+    return user;
+}
+
+static async Task<ParcialExamen.Models.Cliente> EnsureClienteAsync(
+    ApplicationDbContext context,
+    IdentityUser user,
+    decimal ingresosMensuales)
+{
+    var cliente = await context.Clientes.FirstOrDefaultAsync(cliente => cliente.UsuarioId == user.Id);
+
+    if (cliente == null)
+    {
+        var matchingUserIds = await context.Users
+            .Where(existingUser => existingUser.NormalizedEmail == user.NormalizedEmail)
+            .Select(existingUser => existingUser.Id)
+            .ToListAsync();
+
+        cliente = await context.Clientes
+            .FirstOrDefaultAsync(cliente => matchingUserIds.Contains(cliente.UsuarioId));
+    }
+
+    if (cliente == null)
+    {
+        cliente = new ParcialExamen.Models.Cliente
+        {
+            UsuarioId = user.Id,
+            IngresosMensuales = ingresosMensuales,
+            Activo = true
+        };
+
+        context.Clientes.Add(cliente);
+        await context.SaveChangesAsync();
+        return cliente;
+    }
+
+    var changed = false;
+
+    if (cliente.UsuarioId != user.Id)
+    {
+        cliente.UsuarioId = user.Id;
+        changed = true;
+    }
+
+    if (cliente.IngresosMensuales != ingresosMensuales)
+    {
+        cliente.IngresosMensuales = ingresosMensuales;
+        changed = true;
+    }
+
+    if (!cliente.Activo)
+    {
+        cliente.Activo = true;
+        changed = true;
+    }
+
+    if (changed)
+    {
+        await context.SaveChangesAsync();
+    }
+
+    return cliente;
+}
+
+static void EnsureSucceeded(IdentityResult result, string action)
+{
+    if (result.Succeeded)
+    {
+        return;
+    }
+
+    var errors = string.Join(", ", result.Errors.Select(error => error.Description));
+    throw new InvalidOperationException($"No se pudo {action}: {errors}");
+}
