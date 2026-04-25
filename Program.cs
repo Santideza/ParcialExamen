@@ -85,8 +85,8 @@ using (var scope = app.Services.CreateScope())
         EnsureSucceeded(await userManager.AddToRoleAsync(analista, "Analista"), "asignar el rol Analista");
     }
 
-    var cliente1 = await EnsureClienteAsync(context, user1, 5000);
-    var cliente2 = await EnsureClienteAsync(context, user2, 8000);
+    var cliente1 = await EnsureClienteAsync(context, user1, "Pedro", 5000);
+    var cliente2 = await EnsureClienteAsync(context, user2, "Maria", 8000);
 
     if (!context.SolicitudesCredito.Any())
     {
@@ -185,6 +185,7 @@ static async Task<IdentityUser> EnsureUserAsync(
 static async Task<ParcialExamen.Models.Cliente> EnsureClienteAsync(
     ApplicationDbContext context,
     IdentityUser user,
+    string nombre,
     decimal ingresosMensuales)
 {
     var cliente = await context.Clientes.FirstOrDefaultAsync(cliente => cliente.UsuarioId == user.Id);
@@ -205,6 +206,7 @@ static async Task<ParcialExamen.Models.Cliente> EnsureClienteAsync(
         cliente = new ParcialExamen.Models.Cliente
         {
             UsuarioId = user.Id,
+            Nombre = nombre,
             IngresosMensuales = ingresosMensuales,
             Activo = true
         };
@@ -219,6 +221,12 @@ static async Task<ParcialExamen.Models.Cliente> EnsureClienteAsync(
     if (cliente.UsuarioId != user.Id)
     {
         cliente.UsuarioId = user.Id;
+        changed = true;
+    }
+
+    if (cliente.Nombre != nombre)
+    {
+        cliente.Nombre = nombre;
         changed = true;
     }
 

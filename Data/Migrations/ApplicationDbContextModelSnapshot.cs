@@ -225,6 +225,10 @@ namespace ParcialExamen.Data.Migrations
                     b.Property<decimal>("IngresosMensuales")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UsuarioId")
                         .IsRequired()
                         .HasColumnType("TEXT");

@@ -73,6 +73,22 @@ public class SolicitudCreditoService
             .FirstOrDefaultAsync(s => s.Id == id && s.Cliente!.UsuarioId == usuarioId);
     }
 
+    public async Task<List<SolicitudCredito>> ObtenerPendientesAsync()
+    {
+        return await _context.SolicitudesCredito
+            .Include(s => s.Cliente)
+            .Where(s => s.Estado == EstadoSolicitud.Pendiente)
+            .OrderBy(s => s.FechaSolicitud)
+            .ToListAsync();
+    }
+
+    public async Task<SolicitudCredito?> ObtenerPorIdAsync(int id)
+    {
+        return await _context.SolicitudesCredito
+            .Include(s => s.Cliente)
+            .FirstOrDefaultAsync(s => s.Id == id);
+    }
+
     public async Task<Cliente?> ObtenerClienteActivoPorUsuarioAsync(string usuarioId)
     {
         return await _context.Clientes

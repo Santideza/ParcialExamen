@@ -1,8 +1,3 @@
-@using Microsoft.AspNetCore.Http
-@{
-    var ultimaSolicitudId = Context.Session.GetInt32("UltimaSolicitudId");
-    var ultimaSolicitudMonto = Context.Session.GetString("UltimaSolicitudMonto");
-}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -28,21 +23,22 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Index">Mis solicitudes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Crear">Nueva solicitud</a>
-                        </li>
+                        @if (!User.IsInRole("Analista"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Index">Mis solicitudes</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Crear">Nueva solicitud</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
                         </li>
-                        @if (ultimaSolicitudId.HasValue && !string.IsNullOrWhiteSpace(ultimaSolicitudMonto))
+                        @if (User.IsInRole("Analista"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Detalle" asp-route-id="@ultimaSolicitudId">
-                                    Ver ultima solicitud @ultimaSolicitudMonto
-                                </a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Analista" asp-action="Index">Panel Analista</a>
                             </li>
                         }
                     </ul>
