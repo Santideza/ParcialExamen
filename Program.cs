@@ -5,6 +5,12 @@ using ParcialExamen.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port) && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
@@ -14,7 +20,8 @@ builder.Services.AddScoped<SolicitudCreditoService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    var redisUrl = builder.Configuration.GetConnectionString("Redis")
+    var redisUrl = builder.Configuration["Redis:ConnectionString"]
+        ?? builder.Configuration.GetConnectionString("Redis")
         ?? throw new InvalidOperationException("Connection string 'Redis' not found.");
     var redisUri = new Uri(redisUrl);
     var userInfo = redisUri.UserInfo.Split(':', 2);
