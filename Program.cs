@@ -11,6 +11,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddScoped<SolicitudCreditoService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var redisUrl = builder.Configuration.GetConnectionString("Redis")
+        ?? throw new InvalidOperationException("Connection string 'Redis' not found.");
+    var redisUri = new Uri(redisUrl);
+    var userInfo = redisUri.UserInfo.Split(':', 2);
+
+    options.Configuration = $"{redisUri.Host}:{redisUri.Port},user={userInfo[0]},password={userInfo[1]},abortConnect=false";
+    options.InstanceName = "ParcialExamen:";
+});
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
@@ -31,6 +48,7 @@ else
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthorization();
 

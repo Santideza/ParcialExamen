@@ -66,7 +66,7 @@ public class SolicitudesController(SolicitudCreditoService service, UserManager<
             return View(model);
         }
 
-        await service.CrearSolicitudPendienteAsync(cliente.Id, model.MontoSolicitado);
+        await service.CrearSolicitudPendienteAsync(cliente, model.MontoSolicitado);
         TempData["SuccessMessage"] = "Solicitud registrada correctamente.";
 
         return RedirectToAction(nameof(Crear));
@@ -79,6 +79,9 @@ public class SolicitudesController(SolicitudCreditoService service, UserManager<
 
         var solicitud = await service.ObtenerPorIdYUsuarioAsync(id, user.Id);
         if (solicitud == null) return NotFound();
+
+        HttpContext.Session.SetInt32("UltimaSolicitudId", solicitud.Id);
+        HttpContext.Session.SetString("UltimaSolicitudMonto", solicitud.MontoSolicitado.ToString("C2"));
 
         return View(solicitud);
     }
